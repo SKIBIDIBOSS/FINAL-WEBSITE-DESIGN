@@ -9,13 +9,3 @@
     "restartPolicyMaxRetries": 10
   }
 }
-```
-
----
-
-## File 3: `.gitignore`
-```
-node_modules/
-*.db
-*.sqlite
-.env
