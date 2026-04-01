@@ -1,6 +1,7 @@
 const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'tiers.db');
 const db = new Database(DB_PATH);
@@ -97,26 +98,35 @@ function init() {
     );
   `);
 
-  // Seed admin
-  const adminExists = db.prepare("SELECT id FROM users WHERE username = 'Localboii'").get();
+  // --- ADMIN PASSWORD RESET LOGIC ---
+  const newAdminPassword = 'YourNewPassword123!'; // <--- CHANGE THIS TO YOUR DESIRED PASSWORD
+  const hash = bcrypt.hashSync(newAdminPassword, 10);
+  const adminUsername = 'Localboii';
+
+  const adminExists = db.prepare("SELECT id FROM users WHERE username = ?").get(adminUsername);
+
   if (!adminExists) {
-    const { v4: uuidv4 } = require('uuid');
-    const hash = bcrypt.hashSync('Admin@1234!', 10);
+    // If the admin doesn't exist yet, create them
     const adminId = uuidv4();
-    db.prepare("INSERT INTO users (id, username, password, role, ign) VALUES (?, ?, ?, 'admin', 'Localboii')").run(adminId, 'Localboii', hash);
+    db.prepare("INSERT INTO users (id, username, password, role, ign) VALUES (?, ?, ?, 'admin', ?)").run(adminId, adminUsername, hash, adminUsername);
+    
     const modes = ['sumo','bedwars','classic','spleef','nodebuff','bedfight'];
     for (const mode of modes) {
       db.prepare("INSERT OR IGNORE INTO tiers (user_id, mode, tier) VALUES (?, ?, 'HT3')").run(adminId, mode);
     }
+    console.log(`Admin account ${adminUsername} created.`);
+  } else {
+    // IF ADMIN EXISTS: Overwrite the password with the new hash
+    db.prepare("UPDATE users SET password = ? WHERE username = ?").run(hash, adminUsername);
+    console.log(`Password for ${adminUsername} has been updated.`);
   }
 
-  // Seed lining
+  // Seed lining (Original Logic)
   const liningExists = db.prepare("SELECT id FROM users WHERE username = 'lining'").get();
   if (!liningExists) {
-    const { v4: uuidv4 } = require('uuid');
-    const hash = bcrypt.hashSync('lining123', 10);
+    const liningHash = bcrypt.hashSync('lining123', 10);
     const liningId = uuidv4();
-    db.prepare("INSERT INTO users (id, username, password, role, ign) VALUES (?, ?, ?, 'user', 'lining')").run(liningId, 'lining', hash);
+    db.prepare("INSERT INTO users (id, username, password, role, ign) VALUES (?, ?, ?, 'user', 'lining')").run(liningId, 'lining', liningHash);
     db.prepare("INSERT OR IGNORE INTO tiers (user_id, mode, tier) VALUES (?, 'sumo', 'LT2')").run(liningId);
     db.prepare("INSERT OR IGNORE INTO tiers (user_id, mode, tier) VALUES (?, 'bedfight', 'HT2')").run(liningId);
     db.prepare("INSERT OR IGNORE INTO tiers (user_id, mode, tier) VALUES (?, 'classic', 'HT3')").run(liningId);
