@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SKIBIDIBOSS X LINING TIERS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="banned-overlay" class="banned-overlay hidden">
+    <div class="banned-box">
+      <div class="banned-icon">🔨</div>
+      <h1>YOU HAVE BEEN BANNED</h1>
+      <p>Your account has been suspended by an administrator.</p>
+      <p>You may only view the leaderboard while banned.</p>
+      <button onclick="handleBannedContinue()">View Leaderboard</button>
+    </div>
+  </div>
+
+  <div id="app">
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <div class="sidebar-logo">
+        <span class="logo-skibidi">SKIBIDIBOSS</span>
+        <span class="logo-x">✕</span>
+        <span class="logo-lining">LINING</span>
+        <span class="logo-tiers">TIERS</span>
+      </div>
+      <nav id="sidebar-nav">
+        <a class="nav-item active" data-page="home" onclick="navigate('home')">
+          <span class="nav-icon">🏠</span> Home
+        </a>
+        <a class="nav-item" data-page="leaderboard" onclick="navigate('leaderboard')">
+          <span class="nav-icon">🏆</span> Leaderboard
+        </a>
+        <a class="nav-item" data-page="forum" onclick="navigate('forum')">
+          <span class="nav-icon">💬</span> Forum / Chat
+        </a>
+        <a class="nav-item" data-page="queues" onclick="navigate('queues')">
+          <span class="nav-icon">⚔️</span> Join Queues
+        </a>
+        <a class="nav-item" data-page="results-low" onclick="navigate('results-low')">
+          <span class="nav-icon">📋</span> Results
+        </a>
+        <a class="nav-item" data-page="results-high" onclick="navigate('results-high')">
+          <span class="nav-icon">⭐</span> High Results
+        </a>
+        <a class="nav-item" data-page="apply" onclick="navigate('apply')">
+          <span class="nav-icon">📝</span> Tester Apply
+        </a>
+        <a class="nav-item tester-only hidden" data-page="ban-forum" onclick="navigate('ban-forum')">
+          <span class="nav-icon">🔨</span> Ban Forum
+        </a>
+        <a class="nav-item tester-only hidden" data-page="tickets" onclick="navigate('tickets')">
+          <span class="nav-icon">🎫</span> My Tickets
+        </a>
+        <a class="nav-item admin-only hidden" data-page="admin" onclick="navigate('admin')">
+          <span class="nav-icon">👑</span> Admin Panel
+        </a>
+        <div class="sidebar-divider"></div>
+        <div id="sidebar-auth">
+          <a class="nav-item" data-page="auth" onclick="navigate('auth')">
+            <span class="nav-icon">🔑</span> Login / Sign Up
+          </a>
+        </div>
+        <a class="nav-item hidden" id="profile-nav" data-page="profile" onclick="navigate('profile')">
+          <span class="nav-icon">👤</span> My Profile
+        </a>
+        <a class="nav-item hidden" id="logout-nav" onclick="doLogout()">
+          <span class="nav-icon">🚪</span> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main id="main">
+      <!-- HOME PAGE -->
+      <div id="page-home" class="page active">
+        <div class="home-hero">
+          <h1 class="hero-title">
+            <span class="red-glow">SKIBIDIBOSS</span>
+            <span class="x-glow">✕</span>
+            <span class="blue-glow">LINING</span>
+          </h1>
+          <p class="hero-sub">The Premier 1.8 Minecraft PvP Tier Testing Platform</p>
+        </div>
+        <div class="home-leaderboard-preview">
+          <h2 class="section-title">🏆 Top Players</h2>
+          <div id="home-leaderboard" class="leaderboard-mini"></div>
+        </div>
+        <div class="home-cta">
+          <div class="cta-glow-dot"></div>
+          <span class="cta-text" onclick="navigate('auth')">Want to get tested? — <strong>Sign Up / Login</strong></span>
+        </div>
+      </div>
+
+      <!-- LEADERBOARD PAGE -->
+      <div id="page-leaderboard" class="page">
+        <h1 class="page-title">🏆 Leaderboard</h1>
+        <div class="mode-tabs">
+          <button class="tab-btn active" onclick="loadLeaderboard('overall', this)">Overall</button>
+          <button class="tab-btn" onclick="loadLeaderboard('sumo', this)">🤼 Sumo</button>
+          <button class="tab-btn" onclick="loadLeaderboard('bedwars', this)">🛏️ Bedwars</button>
+          <button class="tab-btn" onclick="loadLeaderboard('bedfight', this)">🛡️ Bedfight</button>
+          <button class="tab-btn" onclick="loadLeaderboard('classic', this)">⚔️ Classic</button>
+          <button class="tab-btn" onclick="loadLeaderboard('nodebuff', this)">💊 Nodebuff</button>
+          <button class="tab-btn" onclick="loadLeaderboard('spleef', this)">❄️ Spleef</button>
+        </div>
+        <div id="leaderboard-content" class="leaderboard-table-wrap"></div>
+      </div>
+
+      <!-- FORUM PAGE -->
+      <div id="page-forum" class="page">
+        <h1 class="page-title">💬 Forum / Chat</h1>
+        <div class="chat-container">
+          <div id="forum-messages" class="messages-area"></div>
+          <div id="forum-input-area" class="chat-input-area hidden">
+            <input id="forum-input" type="text" placeholder="Type a message..." maxlength="500" onkeydown="if(event.key==='Enter')sendForum()" />
+            <button onclick="sendForum()" class="btn-send">Send</button>
+          </div>
+          <div id="forum-login-prompt" class="login-prompt">
+            <span onclick="navigate('auth')">Login to chat →</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUEUES PAGE -->
+      <div id="page-queues" class="page">
+        <h1 class="page-title">⚔️ Queues</h1>
+        <div id="queues-content"></div>
+      </div>
+
+      <!-- RESULTS LOW -->
+      <div id="page-results-low" class="page">
+        <h1 class="page-title">📋 Results</h1>
+        <div id="results-low-content" class="results-grid"></div>
+      </div>
+
+      <!-- RESULTS HIGH -->
+      <div id="page-results-high" class="page">
+        <h1 class="page-title">⭐ High Results (HT3+)</h1>
+        <div id="results-high-content" class="results-grid"></div>
+      </div>
+
+      <!-- APPLY PAGE -->
+      <div id="page-apply" class="page">
+        <h1 class="page-title">📝 Tester Application</h1>
+        <div id="apply-content"></div>
+      </div>
+
+      <!-- BAN FORUM -->
+      <div id="page-ban-forum" class="page">
+        <h1 class="page-title">🔨 Ban Forum</h1>
+        <div class="chat-container">
+          <div id="banforum-messages" class="messages-area"></div>
+          <div class="chat-input-area">
+            <input id="banforum-input" type="text" placeholder="Post ban info..." maxlength="500" onkeydown="if(event.key==='Enter')sendBanForum()" />
+            <button onclick="sendBanForum()" class="btn-send">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TICKETS -->
+      <div id="page-tickets" class="page">
+        <h1 class="page-title">🎫 My Tickets</h1>
+        <div id="tickets-content"></div>
+      </div>
+
+      <!-- PROFILE PAGE -->
+      <div id="page-profile" class="page">
+        <h1 class="page-title">👤 My Profile</h1>
+        <div id="profile-content"></div>
+      </div>
+
+      <!-- AUTH PAGE -->
+      <div id="page-auth" class="page">
+        <div class="auth-container">
+          <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchAuthTab('login', this)">Login</button>
+            <button class="auth-tab" onclick="switchAuthTab('register', this)">Sign Up</button>
+          </div>
+          <div id="auth-login" class="auth-form">
+            <h2>Welcome Back</h2>
+            <input id="login-user" type="text" placeholder="Username" />
+            <input id="login-pass" type="password" placeholder="Password" />
+            <button onclick="doLogin()" class="btn-primary">Login</button>
+            <div id="login-err" class="auth-err"></div>
+          </div>
+          <div id="auth-register" class="auth-form hidden">
+            <h2>Create Account</h2>
+            <input id="reg-user" type="text" placeholder="Username" />
+            <input id="reg-ign" type="text" placeholder="In-Game Name (IGN)" />
+            <input id="reg-pass" type="password" placeholder="Password (min 6 chars)" />
+            <button onclick="doRegister()" class="btn-primary">Sign Up</button>
+            <div id="reg-err" class="auth-err"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN PANEL -->
+      <div id="page-admin" class="page">
+        <h1 class="page-title">👑 Admin Panel</h1>
+        <div class="admin-tabs">
+          <button class="tab-btn active" onclick="adminTab('users', this)">👥 All Users</button>
+          <button class="tab-btn" onclick="adminTab('testers', this)">🎯 Add Tester</button>
+          <button class="tab-btn" onclick="adminTab('queues', this)">⚔️ All Queues</button>
+          <button class="tab-btn" onclick="adminTab('applications', this)">📝 Applications</button>
+        </div>
+        <div id="admin-content"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODALS -->
+  <div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal()"></div>
+  <div id="modal" class="modal hidden"></div>
+
+  <!-- QUEUE JOIN POPUP -->
+  <div id="queue-popup" class="modal-overlay hidden">
+    <div class="modal" style="display:block">
+      <h2>Join Queue</h2>
+      <select id="queue-mode" class="input-field">
+        <option value="">Select Mode</option>
+        <option value="sumo">🤼 Sumo</option>
+        <option value="bedwars">🛏️ Bedwars</option>
+        <option value="bedfight">🛡️ Bedfight</option>
+        <option value="classic">⚔️ Classic</option>
+        <option value="nodebuff">💊 Nodebuff</option>
+        <option value="spleef">❄️ Spleef</option>
+      </select>
+      <input id="queue-ign" class="input-field" type="text" placeholder="Your IGN" />
+      <input id="queue-timezone" class="input-field" type="text" placeholder="Timezone (e.g. EST, GMT+8)" />
+      <input id="queue-region" class="input-field" type="text" placeholder="Region (e.g. NA, EU, AS)" />
+      <input id="queue-server" class="input-field" type="text" placeholder="Preferred Server (e.g. Hypixel, Minemen)" />
+      <div class="modal-actions">
+        <button onclick="closeQueuePopup()" class="btn-secondary">Cancel</button>
+        <button onclick="submitQueue()" class="btn-primary">Join Queue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINISH TEST POPUP -->
+  <div id="finish-popup" class="modal-overlay hidden">
+    <div class="modal" style="display:block">
+      <h2>Finish Test</h2>
+      <p id="finish-popup-info" class="modal-info"></p>
+      <div class="score-inputs">
+        <div>
+          <label>Your Score (Tester)</label>
+          <input id="finish-tester-score" type="number" min="0" max="5" class="input-field" placeholder="0-5" />
+        </div>
+        <div>
+          <label>Testee Score</label>
+          <input id="finish-testee-score" type="number" min="0" max="5" class="input-field" placeholder="0-5" />
+        </div>
+      </div>
+      <label>Tier Awarded (optional override)</label>
+      <select id="finish-tier" class="input-field">
+        <option value="">Auto Calculate</option>
+        <option value="Unrated">Unrated</option>
+        <option value="LT5">LT5</option>
+        <option value="HT5">HT5</option>
+        <option value="LT4">LT4</option>
+        <option value="HT4">HT4</option>
+        <option value="LT3">LT3</option>
+        <option value="HT3">HT3</option>
+        <option value="LT2">LT2</option>
+        <option value="HT2">HT2</option>
+        <option value="LT1">LT1</option>
+        <option value="HT1">HT1</option>
+      </select>
+      <div class="modal-actions">
+        <button onclick="closeFinishPopup()" class="btn-secondary">Cancel</button>
+        <button onclick="submitFinish()" class="btn-primary">Submit Result</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
